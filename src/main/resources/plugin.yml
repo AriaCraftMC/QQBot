@@ -1,0 +1,3 @@
+name: QQBot
+version: ${project.version}
+main: cn.nuym.qqbot.QQBot
