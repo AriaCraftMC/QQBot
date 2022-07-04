@@ -40,6 +40,7 @@ public class onGroupMessage implements Listener {
                             "#unmute [玩家] - 解除玩家禁言\n" +
                             "#sc [内容] - 游戏内STAFF全体消息\n" +
                             "#reload - 重载机器人\n"+
+                            "#saying - 每日一言\n"+
                             "严格执法 规范执法 文明执法 廉洁执法\n" +
 
 
@@ -49,6 +50,10 @@ public class onGroupMessage implements Listener {
                     qqmessage("正在重载机器人插件");
                     qqcommand("ezutils reload qqbot");
                 }
+               /* if (command.startsWith("saying")){
+                qqmessage(QQBot.sayings());
+                }
+                */
                 if (command.startsWith("ban") || command.startsWith("unmute") || command.startsWith("unban") || command.startsWith("mute") || command.startsWith("kick")||command.startsWith("ipban")) {
                   if (e.getMessage().contains("[") || e.getMessage().contains("]")||e.getMessage().contains("{")||e.getMessage().contains("}")||panduan(command)||e.getMessage().contains("-")){
                         return;
