@@ -11,7 +11,7 @@ QQBot 是一个 MiraiMC 的 拓展插件，具有无数的功能和体验，帮�
 - #mute [玩家] [原因] [时间] - 禁言玩家
 - #unmute [玩家] - 解除玩家禁言
 - #sc [内容] - 游戏内STAFF全体消息
-- #reload - 重载机器人
+- #reload - 重载机器人（此功能需要EzUtils，你也可以替换成Plugman）
 - #saying - 每日一言
 - #checkban [玩家]
 - 严格执法 规范执法 文明执法 廉洁执法
