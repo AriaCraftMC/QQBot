@@ -1,6 +1,7 @@
 # QQBot
 QQBot 是一个 MiraiMC 的 拓展插件，具有无数的功能和体验，帮助您与您的Staff处理服务器事项。
 它需要 **Java 8** 或更高版本,以及[Litebans](https://www.spigotmc.org/resources/litebans.3715/)和[MiraiMC](https://www.mcbbs.net/forum.php?mod=viewthread&tid=1207462)插件。
+代码的格式并不是很规范，但是能跑:D
 
 ## 特征
 - #help - 使用帮助命令
