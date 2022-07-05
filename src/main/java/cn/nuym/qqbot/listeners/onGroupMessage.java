@@ -3,21 +3,18 @@ package cn.nuym.qqbot.listeners;
 import cn.nuym.qqbot.QQBot;
 import litebans.api.Database;
 import me.dreamvoid.miraimc.api.MiraiBot;
-import me.dreamvoid.miraimc.bukkit.BukkitPlugin;
 import me.dreamvoid.miraimc.bukkit.event.message.passive.MiraiGroupMessageEvent;
 import me.dreamvoid.miraimc.httpapi.MiraiHttpAPI;
 import me.dreamvoid.miraimc.httpapi.exception.AbnormalStatusException;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -32,9 +29,16 @@ public class onGroupMessage implements Listener {
 
     @EventHandler
     public void onGroupMessageReceive(MiraiGroupMessageEvent e){
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                plugin.getConfig().getLongList("bot.bot-accounts").forEach(bot -> plugin.getConfig().getLongList("bot.group-ids").forEach(group -> {
+                    try {
         try {
             if (e.getMessage().startsWith("#")||e.getMessage().startsWith("＃")) {
                 String command = e.getMessage().replaceFirst("#", "").replaceFirst("＃","");
+                String msg = e.getMessage();
+                String[] args = msg.split(" ");
                 if (command.startsWith("help")) {
                     qqmessage(
                             "#help - 使用帮助命令\n" +
@@ -72,24 +76,30 @@ public class onGroupMessage implements Listener {
                       return;
                     }
 
+                    //qqmessage(String.valueOf(e.getSenderID()));
                     new BukkitRunnable() {
                         @Override
                         public void run() {
                             Bukkit.dispatchCommand(Bukkit.getConsoleSender(),command);
-                            success();
+                            success(e);
                         }
                     }.runTask(plugin);
                 }
+
+
                 if (command.startsWith("sc")){
                    String command_1 = command.replaceFirst("sc","litebans broadcast &b[工作人员喊话] &r");
                     new BukkitRunnable() {
                         @Override
                         public void run() {
                             Bukkit.dispatchCommand(Bukkit.getConsoleSender(),command_1);
-                            success();
+                            success(e);
                         }
                     }.runTask(plugin);
                 }
+
+
+
                 if (command.startsWith("checkban")){
                     //OfflinePlayer player = Bukkit.getOfflinePlayer(command.replaceAll("checkban ",""));
                     //UUID uuid = player.getUniqueId();
@@ -126,25 +136,70 @@ public class onGroupMessage implements Listener {
                       //qqmessage(checkban.toString());
 
                 }
+
+                if (command.startsWith("getuuid")){
+                    String name = command.replaceAll("getuuid ","");
+                    try (PreparedStatement st =Database.get().prepareStatement("SELECT * FROM {history} WHERE name=?")){
+                        st.setString(1,name.toString());
+                        try(ResultSet rs = st.executeQuery()){
+                            if (rs.next()){
+                               /*
+                               UUID uuid = UUID.fromString(rs.getString("uuid"));
+                               String reason = rs.getString("reason");
+                               String bannedByUuid = rs.getString("banned_by_uuid");
+                               long time = rs.getLong("time");
+                               long until = rs.getLong("until");
+                               long id = rs.getLong("id");
+                               boolean active = rs.getBoolean("active");
+                               qqmessage(uuid.toString()+" "+reason+" "+bannedByUuid+" "+time+" "+"until"+ " "+id);
+
+                                */
+                                //qqmessage(rs.getString("uuid"));
+
+
+                                UUID uuid = UUID.fromString(rs.getString("uuid"));
+                                //String reason = rs.getString("reason");
+
+                                qqmessage("玩家 "+name+" 的UUID是\n"+uuid.toString());
+                            }
+                        }
+
+                    }
+                }
+
+
             }
         }catch (Exception exception){
 
         }
 
-    }
+    }catch (NoSuchElementException e) {
+                        if (MiraiHttpAPI.Bots.containsKey(bot)) {
+                            try {
+                                MiraiHttpAPI.INSTANCE.sendGroupMessage(MiraiHttpAPI.Bots.get(bot), group, "666");
+                            } catch (IOException | AbnormalStatusException ex) {
+                                plugin.getLogger().warning("使用" + bot + "发送消息时出现异常，原因: " + ex);
+                            }
+                        } else plugin.getLogger().warning("指定的机器人" + bot + "不存在，是否已经登录了机器人？");
+                    }
+                }));
+            }
+        }.runTaskAsynchronously(plugin);}
 
 
-    private void success() {
+    private void success(MiraiGroupMessageEvent e) {
 
         new BukkitRunnable() {
             @Override
             public void run() {
                 plugin.getConfig().getLongList("bot.bot-accounts").forEach(bot -> plugin.getConfig().getLongList("bot.group-ids").forEach(group -> {
                     try {
-                        MiraiBot.getBot(bot).getGroup(group).sendMessageMirai("666");
-                    } catch (NoSuchElementException e) {
+                        MiraiBot.getBot(e.getBotID()).getGroup(e.getGroupID()).sendMessageMirai("[mirai:at:"+e.getSenderID()+"] 666");
+                        //MiraiBot.getBot(bot).getGroup(group).sendMessageMirai("666");
+                    } catch (NoSuchElementException ebot) {
                         if (MiraiHttpAPI.Bots.containsKey(bot)) {
                             try {
+                                MiraiBot.getBot(e.getBotID()).getGroup(e.getGroupID()).sendMessageMirai("[mirai:at:"+e.getSenderID()+"] 你已执行此命令");
                                 MiraiHttpAPI.INSTANCE.sendGroupMessage(MiraiHttpAPI.Bots.get(bot), group, "666");
                             } catch (IOException | AbnormalStatusException ex) {
                                 plugin.getLogger().warning("使用" + bot + "发送消息时出现异常，原因: " + ex);

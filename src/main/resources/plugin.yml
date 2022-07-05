@@ -1,3 +1,7 @@
 name: QQBot
 version: ${project.version}
 main: cn.nuym.qqbot.QQBot
+description: 利用Bot管理服务器事项
+depend:
+  - LiteBans
+  - MiraiMC
