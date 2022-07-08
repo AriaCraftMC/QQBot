@@ -5,3 +5,4 @@ description: 利用Bot管理服务器事项
 depend:
   - LiteBans
   - MiraiMC
+  - LuckPerms
